@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Paper Terminal — Trading Simulator</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --ink:#101B31;
+  --panel:#172745;
+  --panelLight:#1F3459;
+  --border:rgba(224,231,247,.10);
+  --text:#F1EFE7;
+  --muted:#93A3C4;
+  --gold:#D6A550;
+  --goldSoft:rgba(214,165,80,.14);
+  --mint:#6FBF9A;
+  --mintSoft:rgba(111,191,154,.14);
+  --brick:#C9564F;
+  --brickSoft:rgba(201,86,79,.16);
+}
+
+* {
+  box-sizing:border-box;
+}
+
+body {
+  margin:0;
+  background:var(--ink);
+  color:var(--text);
+  font-family:Inter,sans-serif;
+}
+
+button {
+  font-family:Inter,sans-serif;
+}
+
+.app {
+  min-height:100vh;
+  padding:28px 16px 60px;
+  display:flex;
+  justify-content:center;
+}
+
+.container {
+  width:100%;
+  max-width:440px;
+}
+
+.header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:22px;
+}
+
+.logo {
+  font-family:Fraunces,serif;
+  font-size:22px;
+}
+
+.subtitle {
+  color:var(--muted);
+  font-size:11.5px;
+  margin-top:3px;
+}
+
+.num {
+  font-family:"IBM Plex Mono",monospace;
+}
+
+.mode-toggle {
+  display:flex;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:3px;
+}
+
+.mode-toggle button {
+  border:0;
+  cursor:pointer;
+  padding:6px 12px;
+  border-radius:7px;
+  font-size:12px;
+  font-weight:600;
+  color:var(--muted);
+  background:transparent;
+}
+
+.mode-toggle button.active {
+  color:var(--gold);
+  background:var(--goldSoft);
+}
+
+.card {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+}
+
+.ticker {
+  margin-bottom:16px;
+  padding:18px;
+}
+
+.ticker-top {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+}
+
+.ticker-name {
+  color:var(--muted);
+  font-size:12px;
+  letter-spacing:.5px;
+}
+
+.price {
+  font-family:"IBM Plex Mono",monospace;
+  font-size:26px;
+  font-weight:600;
+  margin-top:2px;
+}
+
+.change {
+  display:flex;
+  align-items:center;
+  gap:4px;
+  color:var(--mint);
+  font-size:13px;
+}
+
+svg {
+  vertical-align:middle;
+}
+
+.lesson {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:16px;
+  color:var(--muted);
+  font-size:11.5px;
+}
+
+.progress {
+  display:flex;
+  gap:8px;
+  margin-bottom:22px;
+}
+
+.progress-item {
+  flex:1;
+}
+
+.progress-line {
+  height:3px;
+  border-radius:2px;
+  background:var(--border);
+  margin-bottom:6px;
+}
+
+.progress-line.active {
+  background:var(--gold);
+}
+
+.progress-label {
+  font-size:10.5px;
+  letter-spacing:.4px;
+  color:var(--muted);
+}
+
+.progress-label.active {
+  color:var(--text);
+}
+
+.title {
+  font-family:Fraunces,serif;
+  font-size:18px;
+  line-height:1.3;
+  margin-bottom:5px;
+}
+
+.intro-title {
+  font-family:Fraunces,serif;
+  font-size:21px;
+  line-height:1.25;
+  margin:8px 0 12px;
+}
+
+.body-text {
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.6;
+}
+
+.intro {
+  min-height:260px;
+  display:flex;
+  flex-direction:column;
+}
+
+.intro-bars {
+  display:flex;
+  gap:6px;
+  margin-bottom:18px;
+}
+
+.intro-bar {
+  flex:1;
+  height:3px;
+  border-radius:2px;
+  background:var(--border);
+}
+
+.intro-bar.active {
+  background:var(--gold);
+}
+
+.kicker {
+  color:var(--gold);
+  font-size:11px;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+}
+
+.buttons {
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+}
+
+.btn {
+  border:0;
+  border-radius:10px;
+  padding:13px 20px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:.2px;
+}
+
+.btn.full {
+  flex:1;
+  width:100%;
+}
+
+.btn-primary {
+  background:var(--gold);
+  color:#1A1300;
+}
+
+.btn-ghost {
+  background:transparent;
+  color:var(--muted);
+  border:1px solid var(--border);
+}
+
+.btn-danger {
+  background:var(--brickSoft);
+  color:var(--brick);
+  border:1px solid var(--brick);
+}
+
+.stepper {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:22px;
+  margin:22px 0;
+}
+
+.stepper button {
+  width:38px;
+  height:38px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--panelLight);
+  color:var(--text);
+  font-size:18px;
+  cursor:pointer;
+}
+
+.stepper-value {
+  font-family:"IBM Plex Mono",monospace;
+  font-size:30px;
+  font-weight:600;
+}
+
+.stepper-price {
+  font-family:"IBM Plex Mono",monospace;
+  font-size:26px;
+  font-weight:600;
+}
+
+.row {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:9px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.row-label {
+  color:var(--muted);
+  font-size:13px;
+}
+
+.row-value {
+  font-family:"IBM Plex Mono",monospace;
+  font-weight:600;
+}
+
+.info-dot {
+  width:16px;
+  height:16px;
+  margin-left:6px;
+  border-radius:50%;
+  border:1px solid var(--muted);
+  background:transparent;
+  color:var(--muted);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:9px;
+  vertical-align:middle;
+}
+
+.chip {
+  font-family:Inter,sans-serif;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.4px;
+  padding:3px 9px;
+  border-radius:999px;
+}
+
+.risk-bar {
+  height:10px;
+  border-radius:6px;
+  overflow:hidden;
+  border:1px solid var(--border);
+  display:flex;
+}
+
+.risk-part {
+  background:var(--brick);
+}
+
+.reward-part {
+  background:var(--mint);
+}
+
+.risk-labels {
+  display:flex;
+  justify-content:space-between;
+  margin-top:6px;
+  color:var(--muted);
+  font-size:11.5px;
+}
+
+.notice {
+  background:var(--goldSoft);
+  border-radius:10px;
+  padding:12px 14px;
+  margin-top:16px;
+  color:var(--text);
+  font-size:13px;
+  line-height:1.5;
+}
+
+.result-notice {
+  background:var(--panelLight);
+  border-radius:10px;
+  padding:12px 14px;
+  margin-top:14px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.55;
+}
+
+.footer {
+  text-align:center;
+  margin-top:18px;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.modal {
+  position:fixed;
+  inset:0;
+  background:rgba(8,12,22,.7);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+  padding:20px;
+}
+
+.modal.hidden {
+  display:none;
+}
+
+.modal-box {
+  width:100%;
+  max-width:380px;
+  background:var(--panel);
+  border-radius:16px;
+  padding:22px;
+  border:1px solid var(--border);
+}
+
+.glossary {
+  align-items:flex-end;
+}
+
+.glossary .modal-box {
+  max-width:420px;
+  border-radius:16px 16px 0 0;
+}
+
+.modal-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.modal-title {
+  font-family:Fraunces,serif;
+  font-size:19px;
+}
+
+.close {
+  border:0;
+  background:none;
+  color:var(--muted);
+  cursor:pointer;
+  font-size:20px;
+}
+
+.modal-text {
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.55;
+  margin-top:10px;
+}
+
+.warning-title {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--brick);
+  font-family:Fraunces,serif;
+  font-size:17px;
+}
+
+.warning-text {
+  color:var(--text);
+  font-size:13.5px;
+  line-height:1.6;
+  margin-bottom:14px;
+}
+
+.warning-buttons {
+  display:flex;
+  gap:10px;
+}
+
+.warning-buttons .btn {
+  flex:1;
+}
+
+.hidden {
+  display:none!important;
+}
+
+@media(max-width:360px) {
+  .header {
+    align-items:flex-start;
+  }
+
+  .mode-toggle button {
+    padding:6px 8px;
+  }
+
+  .card {
+    padding:17px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="logo">Paper Terminal</div>
+      <div class="subtitle">
+        virtual capital
+        <span class="num" id="capital">₹1,00,000</span>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <button id="learnBtn" class="active" onclick="setMode('learn')">Simple</button>
+      <button id="proBtn" onclick="setMode('pro')">Professional</button>
+    </div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="card ticker">
+    <div class="ticker-top">
+      <div>
+        <div class="ticker-name">RELIANCE</div>
+        <div class="price">₹2,845</div>
+      </div>
+
+      <div class="change">
+        <span>↗</span> +0.9%
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <svg width="100%" height="56" viewBox="0 0 100 40" preserveAspectRatio="none">
+        <path
+          d="M0,40 L12.5,30 L25,37 L37.5,20 L50,25 L62.5,7 L75,20 L87.5,0 L100,20"
+          fill="none"
+          stroke="#D6A550"
+          stroke-width="1.6"
+        />
+      </svg>
+
+      <div id="proStats" class="hidden"
+           style="display:flex;gap:14px;margin-top:8px;font-family:'IBM Plex Mono';font-size:11px;color:var(--muted)">
+        <span>VOL <b style="color:var(--text)">2.4M</b></span>
+        <span>RSI <b style="color:var(--text)">58.2</b></span>
+        <span>MA(20) <b style="color:var(--text)">2,798</b></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LESSON -->
+  <div id="lesson" class="lesson">
+    🎓
+    <span>Lesson 2 of 7 · How do I buy?</span>
+  </div>
+
+  <!-- PROGRESS -->
+  <div id="progress" class="progress hidden">
+    <div class="progress-item">
+      <div id="p1" class="progress-line"></div>
+      <span id="l1" class="progress-label">01 Size</span>
+    </div>
+    <div class="progress-item">
+      <div id="p2" class="progress-line"></div>
+      <span id="l2" class="progress-label">02 Exit</span>
+    </div>
+    <div class="progress-item">
+      <div id="p3" class="progress-line"></div>
+      <span id="l3" class="progress-label">03 Review</span>
+    </div>
+    <div class="progress-item">
+      <div id="p4" class="progress-line"></div>
+      <span id="l4" class="progress-label">04 Trade</span>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div id="intro" class="card intro">
+
+    <div class="intro-bars">
+      <div id="introBar0" class="intro-bar active"></div>
+      <div id="introBar1" class="intro-bar"></div>
+      <div id="introBar2" class="intro-bar"></div>
+    </div>
+
+    <div id="introKicker" class="kicker">
+      Step 01 · What is a stock?
+    </div>
+
+    <div id="introTitle" class="intro-title">
+      A tiny slice of a real company
+    </div>
+
+    <div id="introBody" class="body-text">
+      When you buy a share of RELIANCE, you own a small piece of that actual company.
+      If the company does well over time, your slice tends to become worth more.
+      If it struggles, it can become worth less.
+    </div>
+
+    <div class="buttons">
+      <button id="introBack" class="btn btn-ghost hidden" onclick="previousIntro()">← Back</button>
+      <button id="introNext" class="btn btn-primary full" onclick="nextIntro()">
+        Next →
+      </button>
+    </div>
+
+  </div>
+
+  <!-- QTY -->
+  <div id="qtyStage" class="card hidden">
+
+    <div class="title">How many shares?</div>
+
+    <p class="body-text">
+      This will be a
+      <span style="color:var(--text)">market order</span>
+      <button class="info-dot" onclick="openGlossary('marketOrder')">i</button>
+      — filled right away at the current price.
+    </p>
+
+    <div class="stepper">
+      <button onclick="changeQty(-1)">−</button>
+      <div id="qtyValue" class="stepper-value">10</div>
+      <button onclick="changeQty(1)">+</button>
+    </div>
+
+    <div class="row">
+      <span class="row-label">Investment</span>
+      <span id="investment" class="row-value">₹28,450</span>
+    </div>
+
+    <div class="buttons">
+      <button class="btn btn-primary full" onclick="goStop()">
+        Continue →
+      </button>
+    </div>
+
+  </div>
+
+  <!-- STOP -->
+  <div id="stopStage" class="card hidden">
+
+    <div class="title">
+      Where will you exit if the trade goes wrong?
+    </div>
+
+    <p class="body-text">
+      This is your
+      <span style="color:var(--text)">stop loss</span>
+      <button class="info-dot" onclick="openGlossary('stopLoss')">i</button>.
+    </p>
+
+    <div class="stepper">
+      <button onclick="changeStop(-5)">−</button>
+      <div id="stopValue" class="stepper-price">₹2,780</div>
+      <button onclick="changeStop(5)">+</button>
+    </div>
+
+    <div class="row">
+      <span class="row-label">Potential Risk</span>
+      <span id="riskValue" class="row-value" style="color:var(--brick)">₹650</span>
+    </div>
+
+    <div class="row">
+      <span class="row-label">Risk Level</span>
+      <span id="riskLevel" class="chip">LOW</span>
+    </div>
+
+    <div class="buttons">
+      <button class="btn btn-ghost" onclick="goQty()">← Back</button>
+      <button class="btn btn-primary full" onclick="reviewTrade()">Review Trade</button>
+    </div>
+
+  </div>
+
+  <!-- REVIEW -->
+  <div id="reviewStage" class="card hidden">
+
+    <div class="title">Trade Review</div>
+
+    <div class="risk-bar" style="margin-top:16px">
+      <div id="riskPart" class="risk-part"></div>
+      <div id="rewardPart" class="reward-part"></div>
+    </div>
+
+    <div class="risk-labels">
+      <span id="riskLabel">risk ₹650</span>
+      <span id="rewardLabel">reward ₹1,300</span>
+    </div>
+
+    <div style="margin-top:16px">
+
+      <div class="row">
+        <span class="row-label">
+          Risk / Reward
+          <button class="info-dot" onclick="openGlossary('riskReward')">i</button>
+        </span>
+        <span class="row-value">1 : 2</span>
+      </div>
+
+      <div class="row">
+        <span class="row-label">Exit if wrong</span>
+        <span id="reviewStop" class="row-value">₹2,780</span>
+      </div>
+
+      <div class="row">
+        <span class="row-label">Target</span>
+        <span id="target" class="row-value" style="color:var(--mint)">₹2,975</span>
+      </div>
+
+    </div>
+
+    <div class="notice">
+      You are risking
+      <span id="noticeRisk" class="num" style="color:var(--brick)">₹650</span>
+      to potentially make
+      <span id="noticeReward" class="num" style="color:var(--mint)">₹1,300</span>.
+    </div>
+
+    <div class="buttons">
+      <button class="btn btn-ghost" onclick="goStop()">← Back</button>
+      <button class="btn btn-primary full" onclick="placeTrade()">Place Paper Trade</button>
+    </div>
+
+  </div>
+
+  <!-- RESULT -->
+  <div id="resultStage" class="card hidden">
+
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+
+      <span id="resultIcon" style="font-size:20px;color:var(--mint)">↗</span>
+
+      <span id="resultTitle"
+            style="font-family:Fraunces,serif;font-size:18px">
+        Target hit
+      </span>
+
+    </div>
+
+    <p class="body-text">
+      Position closed at
+      <span id="exitPrice" class="num" style="color:var(--text)">₹2,975</span>.
+    </p>
+
+    <div class="row">
+      <span class="row-label">
+        P&L
+        <button class="info-dot" onclick="openGlossary('pnl')">i</button>
+      </span>
+
+      <span id="pnl" class="row-value" style="color:var(--mint)">
+        +₹1,300
+      </span>
+    </div>
+
+    <div id="resultNotice" class="result-notice"></div>
+
+    <div class="buttons">
+      <button class="btn btn-primary full" onclick="resetFlow()">
+        ↻ Try Another Trade
+      </button>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Practice only · virtual money · no real trades are placed
+  </div>
+
+</div>
+</div>
+
+
+<!-- WARNING MODAL -->
+<div id="mistakeModal" class="modal hidden">
+
+  <div class="modal-box">
+
+    <div class="warning-title">
+      ⚠
+      <span>This position is risky</span>
+    </div>
+
+    <p class="warning-text">
+      If the price falls to your stop-loss, you could lose
+      <span id="warningRisk" class="num" style="color:var(--brick)">₹0</span>,
+      about
+      <span id="warningPct" class="num" style="color:var(--brick)">0%</span>
+      of your virtual capital.
+      Professional traders usually keep risk on a single trade well under that before entering.
+    </p>
+
+    <div class="warning-buttons">
+      <button class="btn btn-ghost" onclick="closeMistake()">Adjust</button>
+      <button class="btn btn-danger" onclick="continueAnyway()">Continue Anyway</button>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- GLOSSARY MODAL -->
+<div id="glossaryModal" class="modal glossary hidden" onclick="closeGlossary()">
+
+  <div class="modal-box" onclick="event.stopPropagation()">
+
+    <div class="modal-header">
+
+      <span id="glossaryTitle" class="modal-title">
+        Market Order
+      </span>
+
+      <button class="close" onclick="closeGlossary()">×</button>
+
+    </div>
+
+    <div id="glossaryText" class="modal-text">
+      Buy or sell immediately at the price the market is offering right now.
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const PRICE = 2845;
+const CAPITAL = 100000;
+
+let mode = "learn";
+let stage = "intro";
+let introIdx = 0;
+let qty = 10;
+let stopLoss = PRICE - 65;
+let result = null;
+
+const glossary = {
+
+  marketOrder: {
+    term:"Market Order",
+    text:"Buy or sell immediately at the price the market is offering right now."
+  },
+
+  limitOrder: {
+    term:"Limit Order",
+    text:"You set the maximum price you're willing to pay — the trade only happens at that price or better."
+  },
+
+  stopLoss: {
+    term:"Stop Loss",
+    text:"An automatic exit level. If the price falls this far, your position closes on its own — so a bad trade can't get worse than you planned."
+  },
+
+  pnl: {
+    term:"P&L",
+    text:"Profit & Loss. What you actually made or lost on a trade, in rupees."
+  },
+
+  riskReward: {
+    term:"Risk / Reward",
+    text:"How much you're risking compared to how much you stand to gain. 1 : 2 means you could make ₹2 for every ₹1 you risk."
+  }
+
+};
+
+const intros = [
+
+  {
+    kicker:"Step 01 · What is a stock?",
+    title:"A tiny slice of a real company",
+    body:"When you buy a share of RELIANCE, you own a small piece of that actual company. If the company does well over time, your slice tends to become worth more. If it struggles, it can become worth less."
+  },
+
+  {
+    kicker:"Step 01 · What is a stock?",
+    title:"The price moves because people trade",
+    body:"The number you see, ₹2,845, is just the price the last trade happened at. It moves constantly as buyers and sellers agree on new prices — that's all a chart is really showing you."
+  },
+
+  {
+    kicker:"Getting started",
+    title:"You'll practice with virtual money",
+    body:"Everything here uses paper money — ₹1,00,000 of it, not real. You'll go through the exact decisions a real trade requires: how much to buy, where you'd exit if it goes wrong, and whether the trade is worth the risk."
+  }
+
+];
+
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+
+function money(value) {
+  return "₹" + Math.round(value).toLocaleString("en-IN");
+}
+
+
+function setMode(newMode) {
+
+  mode = newMode;
+
+  $("learnBtn").classList.toggle("active", mode === "learn");
+  $("proBtn").classList.toggle("active", mode === "pro");
+
+  $("proStats").classList.toggle("hidden", mode !== "pro");
+
+}
+
+
+function nextIntro() {
+
+  if(introIdx < intros.length - 1) {
+
+    introIdx++;
+
+    updateIntro();
+
+  } else {
+
+    stage = "qty";
+
+    showStage();
+
+  }
+
+}
+
+
+function previousIntro() {
+
+  if(introIdx > 0) {
+
+    introIdx--;
+
+    updateIntro();
+
+  }
+
+}
+
+
+function updateIntro() {
+
+  const data = intros[introIdx];
+
+  $("introKicker").textContent = data.kicker;
+  $("introTitle").textContent = data.title;
+  $("introBody").textContent = data.body;
+
+  for(let i=0;i<3;i++) {
+
+    $("introBar"+i).classList.toggle(
+      "active",
+      i <= introIdx
+    );
+
+  }
+
+  $("introBack").classList.toggle(
+    "hidden",
+    introIdx === 0
+  );
+
+  $("introNext").textContent =
+    introIdx < intros.length - 1
+    ? "Next →"
+    : "Start Practicing";
+
+}
+
+
+function showStage() {
+
+  const stages = [
+    "intro",
+    "qtyStage",
+    "stopStage",
+    "reviewStage",
+    "resultStage"
+  ];
+
+  stages.forEach(id => $(id).classList.add("hidden"));
+
+  if(stage === "intro") {
+
+    $("intro").classList.remove("hidden");
+    $("progress").classList.add("hidden");
+    $("lesson").classList.remove("hidden");
+
+  }
+
+  if(stage === "qty") {
+
+    $("qtyStage").classList.remove("hidden");
+    $("progress").classList.remove("hidden");
+    $("lesson").classList.remove("hidden");
+
+    updateProgress(0);
+
+  }
+
+  if(stage === "stop") {
+
+    $("stopStage").classList.remove("hidden");
+    $("progress").classList.remove("hidden");
+    $("lesson").classList.add("hidden");
+
+    updateProgress(1);
+
+  }
+
+  if(stage === "review") {
+
+    $("reviewStage").classList.remove("hidden");
+    $("progress").classList.remove("hidden");
+
+    updateProgress(2);
+
+    updateReview();
+
+  }
+
+  if(stage === "result") {
+
+    $("resultStage").classList.remove("hidden");
+    $("progress").classList.remove("hidden");
+
+    updateProgress(3);
+
+  }
+
+}
+
+
+function updateProgress(index) {
+
+  for(let i=1;i<=4;i++) {
+
+    $("p"+i).classList.toggle(
+      "active",
+      i-1 <= index
+    );
+
+    $("l"+i).classList.toggle(
+      "active",
+      i-1 <= index
+    );
+
+  }
+
+}
+
+
+function changeQty(amount) {
+
+  qty = Math.max(1, qty + amount);
+
+  updateQty();
+
+}
+
+
+function updateQty() {
+
+  const investment = qty * PRICE;
+
+  $("qtyValue").textContent = qty;
+  $("investment").textContent = money(investment);
+
+}
+
+
+function goStop() {
+
+  stage = "stop";
+
+  updateStop();
+
+  showStage();
+
+}
+
+
+function goQty() {
+
+  stage = "qty";
+
+  showStage();
+
+}
+
+
+function changeStop(amount) {
+
+  stopLoss += amount;
+
+  stopLoss = Math.min(
+    PRICE - 5,
+    stopLoss
+  );
+
+  updateStop();
+
+}
+
+
+function calculateRisk() {
+
+  return (PRICE - stopLoss) * qty;
+
+}
+
+
+function getRiskPct() {
+
+  return calculateRisk() / CAPITAL * 100;
+
+}
+
+
+function updateStop() {
+
+  const risk = calculateRisk();
+  const pct = getRiskPct();
+
+  $("stopValue").textContent = money(stopLoss);
+  $("riskValue").textContent = money(risk);
+
+  let label;
+  let color;
+
+  if(pct < 2) {
+
+    label = "LOW";
+    color = "var(--mint)";
+
+  } else if(pct < 5) {
+
+    label = "MEDIUM";
+    color = "var(--gold)";
+
+  } else {
+
+    label = "HIGH";
+    color = "var(--brick)";
+
+  }
+
+  $("riskLevel").textContent = label;
+  $("riskLevel").style.color = color;
+  $("riskLevel").style.background = color + "22";
+
+}
+
+
+function reviewTrade() {
+
+  const pct = getRiskPct();
+
+  if(pct >= 5) {
+
+    $("warningRisk").textContent =
+      money(calculateRisk());
+
+    $("warningPct").textContent =
+      pct.toFixed(1) + "%";
+
+    $("mistakeModal").classList.remove("hidden");
+
+    return;
+
+  }
+
+  stage = "review";
+
+  showStage();
+
+}
+
+
+function closeMistake() {
+
+  $("mistakeModal").classList.add("hidden");
+
+}
+
+
+function continueAnyway() {
+
+  $("mistakeModal").classList.add("hidden");
+
+  stage = "review";
+
+  showStage();
+
+}
+
+
+function updateReview() {
+
+  const risk = calculateRisk();
+
+  const reward = risk * 2;
+
+  const target =
+    PRICE + Math.round(reward / qty);
+
+  const total = risk + reward;
+
+  const riskPercent =
+    risk / total * 100;
+
+  $("riskPart").style.width =
+    riskPercent + "%";
+
+  $("rewardPart").style.width =
+    (100-riskPercent) + "%";
+
+  $("riskLabel").textContent =
+    "risk " + money(risk);
+
+  $("rewardLabel").textContent =
+    "reward " + money(reward);
+
+  $("reviewStop").textContent =
+    money(stopLoss);
+
+  $("target").textContent =
+    money(target);
+
+  $("noticeRisk").textContent =
+    money(risk);
+
+  $("noticeReward").textContent =
+    money(reward);
+
+}
+
+
+function placeTrade() {
+
+  const risk = calculateRisk();
+  const reward = risk * 2;
+
+  const win = Math.random() < 0.6;
+
+  const target =
+    PRICE + Math.round(reward / qty);
+
+  result = {
+
+    win:win,
+
+    exitPrice:win
+      ? target
+      : stopLoss,
+
+    pnl:win
+      ? reward
+      : -risk
+
+  };
+
+  stage = "result";
+
+  updateResult();
+
+  showStage();
+
+}
+
+
+function updateResult() {
+
+  const r = result;
+
+  $("exitPrice").textContent =
+    money(r.exitPrice);
+
+  $("pnl").textContent =
+    (r.pnl >= 0 ? "+" : "") +
+    money(r.pnl);
+
+  $("pnl").style.color =
+    r.pnl >= 0
+      ? "var(--mint)"
+      : "var(--brick)";
+
+  $("resultIcon").textContent =
+    r.win ? "↗" : "↘";
+
+  $("resultIcon").style.color =
+    r.win
+      ? "var(--mint)"
+      : "var(--brick)";
+
+  $("resultTitle").textContent =
+    r.win
+      ? "Target hit"
+      : "Stop loss hit";
+
+  $("resultNotice").textContent =
+    r.win
+      ? "The price moved in your favor and reached your target — the trade closed automatically, locking in the gain."
+      : "The price moved against you and reached your stop loss — the trade closed automatically, capping the loss at what you planned.";
+
+}
+
+
+function resetFlow() {
+
+  stage = "qty";
+
+  qty = 10;
+
+  stopLoss = PRICE - 65;
+
+  result = null;
+
+  updateQty();
+  updateStop();
+
+  showStage();
+
+}
+
+
+function openGlossary(id) {
+
+  const data = glossary[id];
+
+  $("glossaryTitle").textContent =
+    data.term;
+
+  $("glossaryText").textContent =
+    data.text;
+
+  $("glossaryModal").classList.remove("hidden");
+
+}
+
+
+function closeGlossary() {
+
+  $("glossaryModal").classList.add("hidden");
+
+}
+
+
+// Initial state
+
+updateQty();
+updateStop();
+updateIntro();
+showStage();
+
+</script>
+
+</body>
+</html>
